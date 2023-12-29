@@ -1,18 +1,30 @@
-from pathlib import Path
+import sys
 import pandas as pd
+from pathlib import Path
 
 
 def main():
-    file = load_csv()
+    string_path = get_path()
+    file = load_csv(string_path)
     parsed_file = parse_content(file)
     changed_data = transform_data(parsed_file)
-    write_lines(changed_data)
+    create_txt(changed_data, string_path)
+    print('Ура, получилось!')
 
 
-def load_csv():
-    str_path = input('Укажите путь к csv файлу на Вашем компьютере: ')
-    main_path = Path(str_path.replace('"', ''))
-    return pd.read_csv(main_path)
+def get_path():
+    str_path = input('Укажите путь к csv файлу на Вашем компьютере (новый файл будет сохранен в этой же директории): ')
+    return str_path.replace('"', '')
+
+
+def load_csv(str_path):
+    main_path = Path(str_path)
+    try:
+        file = pd.read_csv(main_path)
+        return file
+    except FileNotFoundError as e:
+        print('Неправильный путь файла! Попытайтесь еще разочек...')
+        sys.exit(1)
 
 
 def parse_content(content):
@@ -31,7 +43,7 @@ def parse_content(content):
             'device_type': device_type,
             'browser': browser,
             'sex': sex,
-            'age': int(age),
+            'age': str(age)[0:-2],
             'bill': bill,
             'region': region
         })
@@ -61,13 +73,25 @@ def transform_data(parsed_data):
         if i['region'] == '-':
             i['region'] = 'Нет информации'
 
+        years_word_type_2 = ['2', '3', '4']
+        years_word_type_1 = ['1']
+        if i['age'][-1] in years_word_type_1:
+            i['age_word'] = 'год'
+        elif i['age'][-1] in years_word_type_2:
+            i['age_word'] = 'года'
+        else:
+            i['age_word'] = 'лет'
+
     return parsed_data
 
 
-def write_lines(transformed_data):
-    for i in transformed_data:
-        print(
-            f"Пользователь {i['name']} {i['sex']} пола, {i['age']} лет {i['word']} покупку на {i['bill']} у.е. {i['device_type']} с помощью браузера {i['browser']}. Регион, из которого совершалась покупка: {i['region']}. ")
+def create_txt(transformed_data, str_path):
+    new_path = Path(f'{str_path[0:-3]}txt')
+
+    with open(new_path, 'w') as file:
+        for i in transformed_data:
+            file.write(
+                f" • Пользователь {i['name']} {i['sex']} пола, {i['age']} {i['age_word']} {i['word']} покупку на {i['bill']} у.е. {i['device_type']} с помощью браузера {i['browser']}. Регион, из которого совершалась покупка: {i['region']}. \n")
 
 
 main()
