@@ -55,10 +55,10 @@ def transform_data(parsed_data):
 
         if i['sex'] == 'female':
             i['sex'] = 'женского'
-            i['word'] = 'совершила'
+            i['sex_word'] = 'совершила'
         else:
             i['sex'] = 'мужского'
-            i['word'] = 'совершил'
+            i['sex_word'] = 'совершил'
 
         match i['device_type']:
             case 'mobile':
@@ -91,7 +91,7 @@ def create_txt(transformed_data, str_path):
     with open(new_path, 'w') as file:
         for i in transformed_data:
             file.write(
-                f" • Пользователь {i['name']} {i['sex']} пола, {i['age']} {i['age_word']} {i['word']} покупку на {i['bill']} у.е. {i['device_type']} с помощью браузера {i['browser']}. Регион, из которого совершалась покупка: {i['region']}. \n")
+                f" • Пользователь {i['name']} {i['sex']} пола, {i['age']} {i['age_word']} {i['sex_word']} покупку на {i['bill']} у.е. {i['device_type']} с помощью браузера {i['browser']}. Регион, из которого совершалась покупка: {i['region']}. \n")
 
 
 main()
